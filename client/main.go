@@ -1,11 +1,12 @@
 package main
 
 import (
-	"container-manager/storage"
+	"container-manager/client/storage"
 	"log"
 )
 
 func main() {
+
 	storages, err := storage.GetFreeStorageSpace()
 	if err != nil {
 		log.Fatal(err)
