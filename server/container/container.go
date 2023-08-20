@@ -2,6 +2,7 @@ package cell
 
 import (
 	"bufio"
+	"container-manager/shared"
 	"fmt"
 	"io"
 	"net"
@@ -16,6 +17,9 @@ type containerData struct {
 type Client struct {
 	Name string
 	Conn net.Conn
+
+	// The client information
+	Storage []shared.StorageResult
 }
 
 type Container interface {
@@ -39,12 +43,12 @@ func (c *containerData) AddClient(name string, conn net.Conn) {
 			return
 		}
 	}
-
-	c.Clients = append(c.Clients, Client{
+	newClient := Client{
 		Name: name,
 		Conn: conn,
-	})
-	go c.processCell(name, conn)
+	}
+	c.Clients = append(c.Clients, newClient)
+	go c.processCell(&newClient)
 }
 
 func (c *containerData) RemoveClient(name string) {
@@ -61,11 +65,10 @@ func (c *containerData) GetAllClients() []Client {
 	return c.Clients
 }
 
-func (c *containerData) processCell(name string, conn net.Conn) {
+func (c *containerData) processCell(client *Client) {
 	// Create a buffered reader
-	reader := bufio.NewReader(conn)
+	reader := bufio.NewReader(client.Conn)
 
-	// Read line by line
 	for {
 		// Read a line of data
 		line, err := reader.ReadString('\n')
@@ -79,6 +82,7 @@ func (c *containerData) processCell(name string, conn net.Conn) {
 
 		// Print the line
 		fmt.Println(line)
+		client.processEvent(line)
 	}
-	c.RemoveClient(name)
+	c.RemoveClient(client.Name)
 }

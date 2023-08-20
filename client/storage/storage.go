@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"container-manager/shared"
 	"fmt"
 	"log"
 	"os/exec"
@@ -8,14 +9,7 @@ import (
 	"strings"
 )
 
-type Storage struct {
-	Name       string
-	TotalSpace float64
-	UsedSpace  float64
-	Mount      string
-}
-
-func GetFreeStorageSpace() ([]Storage, error) {
+func GetFreeStorageSpace() ([]shared.StorageResult, error) {
 	// Get the output of the `df` command.
 	cmd := exec.Command("df")
 	output, err := cmd.Output()
@@ -25,7 +19,7 @@ func GetFreeStorageSpace() ([]Storage, error) {
 
 	// Split the output into lines.
 	lines := strings.Split(string(output), "\n")
-	storageList := make([]Storage, 0)
+	storageList := make([]shared.StorageResult, 0)
 
 	// Iterate over the lines and print the storage free information.
 	for index, line := range lines {
@@ -49,7 +43,7 @@ func GetFreeStorageSpace() ([]Storage, error) {
 			continue
 		}
 
-		storageList = append(storageList, Storage{
+		storageList = append(storageList, shared.StorageResult{
 			Name:       fields[0],
 			TotalSpace: size_float,
 			UsedSpace:  used_float,
