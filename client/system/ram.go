@@ -12,5 +12,5 @@ func GetRAMUsage() (uint64, uint64, error) {
 	if err != nil {
 		return 0, 0, fmt.Errorf("could not get RAM usage: %s", err)
 	}
-	return result.Total, result.Free, nil
+	return result.Total, result.Available, nil
 }

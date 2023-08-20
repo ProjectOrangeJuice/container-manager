@@ -11,7 +11,7 @@ import (
 )
 
 type containerData struct {
-	Clients  []Client
+	Clients  []*Client
 	CellLock sync.Mutex
 }
 
@@ -27,7 +27,7 @@ type Client struct {
 type Container interface {
 	AddClient(name string, conn net.Conn)
 	RemoveClient(name string)
-	GetAllClients() []Client
+	GetAllClients() []*Client
 }
 
 func NewContainerList() Container {
@@ -50,8 +50,11 @@ func (c *containerData) AddClient(name string, conn net.Conn) {
 		Conn: conn,
 	}
 	log.Printf("Adding client %s", name)
-	c.Clients = append(c.Clients, newClient)
+	c.Clients = append(c.Clients, &newClient)
 	go c.processCell(&newClient)
+
+	fmt.Fprint(newClient.Conn, "STORAGE_INFO\n")
+	fmt.Fprint(newClient.Conn, "SYSTEM_INFO\n")
 }
 
 func (c *containerData) RemoveClient(name string) {
@@ -65,7 +68,7 @@ func (c *containerData) RemoveClient(name string) {
 	}
 }
 
-func (c *containerData) GetAllClients() []Client {
+func (c *containerData) GetAllClients() []*Client {
 	return c.Clients
 }
 

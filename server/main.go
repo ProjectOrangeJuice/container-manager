@@ -4,6 +4,7 @@ import (
 	"bufio"
 	cell "container-manager/server/container"
 	"container-manager/server/system"
+	"container-manager/server/web"
 	"fmt"
 	"log"
 	"net"
@@ -13,7 +14,7 @@ func main() {
 
 	clients := cell.NewContainerList()
 	go system.RunSystem(clients)
-
+	go web.StartWebServer(clients)
 	// Listen on port 8080
 	listener, err := net.Listen("tcp", ":8080")
 	if err != nil {

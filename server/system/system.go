@@ -12,7 +12,7 @@ type System struct {
 }
 
 func RunSystem(containerManager cell.Container) {
-	ticker := time.NewTicker(10 * time.Second)
+	ticker := time.NewTicker(30 * time.Second)
 	for {
 		<-ticker.C
 		log.Printf("Ticking over the containers")

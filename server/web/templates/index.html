@@ -1,0 +1,46 @@
+{{define "index"}}
+
+<head>
+    <title>Container manager</title>
+</head>
+
+<body>
+
+    <h1>Containers</h1>
+
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Storage</th>
+            <th>CPU</th>
+            <th>Ram</th>
+        </tr>
+        {{range .}}
+        <tr>
+            <td>{{.Name}}</td>
+            <td>
+                <table>
+                    <tr>
+                        <th>Name</th>
+                        <th>Mount</th>
+                        <th>Space used</th>
+                    </tr>
+                    {{range .Storage}}
+                    <tr>
+                        <td>{{.Name}}</td>
+                        <td>{{.Mount}}</td>
+                        <td>{{.SpaceUsed}}</td>
+                    </tr>
+                    {{end}}
+                </table>
+
+            </td>
+            <td>{{.CPU}}</td>
+             <td>{{.Memory}}</td>
+        </tr>
+        {{end}}
+
+
+</body>
+
+{{end}}
