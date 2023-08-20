@@ -5,6 +5,7 @@ import (
 	"container-manager/shared"
 	"fmt"
 	"io"
+	"log"
 	"net"
 	"sync"
 )
@@ -47,12 +48,14 @@ func (c *containerData) AddClient(name string, conn net.Conn) {
 		Name: name,
 		Conn: conn,
 	}
+	log.Printf("Adding client %s", name)
 	c.Clients = append(c.Clients, newClient)
 	go c.processCell(&newClient)
 }
 
 func (c *containerData) RemoveClient(name string) {
 	c.CellLock.Lock()
+	log.Printf("Removing client %s", name)
 	defer c.CellLock.Unlock()
 	for i, client := range c.Clients {
 		if client.Name == name {
