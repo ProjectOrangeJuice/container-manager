@@ -21,6 +21,7 @@ type Client struct {
 
 	// The client information
 	Storage []shared.StorageResult
+	System  shared.SystemResult
 }
 
 type Container interface {

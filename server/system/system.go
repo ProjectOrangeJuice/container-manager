@@ -20,6 +20,7 @@ func RunSystem(containerManager cell.Container) {
 
 		for _, client := range clients {
 			fmt.Fprint(client.Conn, "STORAGE_INFO\n")
+			fmt.Fprint(client.Conn, "SYSTEM_INFO\n")
 		}
 
 	}
