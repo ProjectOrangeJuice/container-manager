@@ -45,11 +45,11 @@ func GenerateCert(dir string) error {
 			Organization: []string{"VM manager"},
 			CommonName:   "server",
 		},
-		NotBefore:   notBefore,
-		NotAfter:    notAfter,
-		KeyUsage:    x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature,
-		ExtKeyUsage: []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
-
+		NotBefore:             notBefore,
+		NotAfter:              notAfter,
+		KeyUsage:              x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature,
+		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageServerAuth},
+		DNSNames:              []string{"localhost"},
 		BasicConstraintsValid: true,
 	}
 
