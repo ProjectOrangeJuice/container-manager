@@ -27,7 +27,6 @@ func InitFingerprints(fingerprints []serverConfig.Fingerprint) {
 }
 
 func (ac *allClients) HandleClient(conn net.Conn) {
-	defer conn.Close()
 	tlsConn, ok := conn.(*tls.Conn)
 	if !ok {
 		log.Println("Failed to cast connection to TLS connection")
