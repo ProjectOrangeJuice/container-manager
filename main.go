@@ -1,12 +1,12 @@
 package main
 
 import (
-	"bufio"
 	"crypto/tls"
 	"fmt"
 	"log"
 
 	"github.com/ProjectOrangeJuice/vm-manager-server/cert"
+	"github.com/ProjectOrangeJuice/vm-manager-server/connection"
 )
 
 func main() {
@@ -33,16 +33,8 @@ func main() {
 			fmt.Println(err)
 			continue
 		}
-
-		// Get the client's name
-		nameReader := bufio.NewReader(conn)
-		name, err := nameReader.ReadString('\n')
-		if err != nil {
-			fmt.Println(err)
-			conn.Close()
-			continue
-		}
-		log.Printf("line -> %s", name)
+		log.Println("New connection")
+		go connection.HandleClient(conn)
 		// clients.AddClient(name, conn)
 	}
 }

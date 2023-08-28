@@ -110,6 +110,7 @@ func SetupTLSConfig(dir string) (*tls.Config, error) {
 	tlsConfig := &tls.Config{
 		Certificates: []tls.Certificate{cert},
 		RootCAs:      caCertPool,
+		ClientAuth:   tls.RequireAnyClientCert,
 	}
 	return tlsConfig, nil
 }
