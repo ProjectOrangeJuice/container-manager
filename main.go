@@ -8,6 +8,8 @@ import (
 	"github.com/ProjectOrangeJuice/vm-manager-server/cert"
 	"github.com/ProjectOrangeJuice/vm-manager-server/connection"
 	"github.com/ProjectOrangeJuice/vm-manager-server/serverConfig"
+	"github.com/ProjectOrangeJuice/vm-manager-server/system"
+	"github.com/ProjectOrangeJuice/vm-manager-server/web"
 )
 
 func main() {
@@ -35,6 +37,10 @@ func main() {
 		log.Fatal(err)
 	}
 
+	clientHandler := connection.Setup()
+	go web.StartWebServer(clientHandler)
+	go system.RunSystem(clientHandler)
+
 	listener, err := tls.Listen("tcp", ":8080", tlsConfig)
 	if err != nil {
 		log.Fatal(err)
@@ -48,6 +54,6 @@ func main() {
 			continue
 		}
 		log.Println("New connection")
-		go connection.HandleClient(conn)
+		go clientHandler.HandleClient(conn)
 	}
 }

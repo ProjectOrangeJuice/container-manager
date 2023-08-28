@@ -10,6 +10,15 @@ import (
 	"github.com/ProjectOrangeJuice/vm-manager-server/serverConfig"
 )
 
+func Setup() Clients {
+	return &allClients{}
+}
+
+type Clients interface {
+	HandleClient(conn net.Conn)
+	GetAllClients() []*Client
+}
+
 func InitFingerprints(fingerprints []serverConfig.Fingerprint) {
 	for _, fingerprint := range fingerprints {
 		pinnedCertificates[fingerprint.Fingerprint] = fingerprint.AllowConnect
@@ -17,7 +26,7 @@ func InitFingerprints(fingerprints []serverConfig.Fingerprint) {
 
 }
 
-func HandleClient(conn net.Conn) {
+func (ac *allClients) HandleClient(conn net.Conn) {
 	defer conn.Close()
 	tlsConn, ok := conn.(*tls.Conn)
 	if !ok {
@@ -45,6 +54,7 @@ func HandleClient(conn net.Conn) {
 	}
 
 	log.Println("Connection allowed.")
+	ac.AddClient(clientCert.Subject.CommonName, clientCert.SerialNumber.String(), conn)
 }
 
 var pinnedCertificates = map[string]bool{}
@@ -61,7 +71,7 @@ func promptAllowConnection(cert *x509.Certificate) bool {
 	if response == "Y" || response == "y" {
 		addFingerPrint(cert.SerialNumber.String(), cert.SerialNumber.String(), cert.Subject.CommonName, true)
 	}
-	return response == "Y" || response == "y"
+	return response == "Y" || response == "y" // This will be on the UI, but fornow we accept an input through the terminal
 }
 
 func addFingerPrint(fingerprint, serial, name string, allow bool) {

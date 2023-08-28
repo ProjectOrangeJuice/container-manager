@@ -4,17 +4,17 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/ProjectOrangeJuice/vm-manager-server/vm"
+	"github.com/ProjectOrangeJuice/vm-manager-server/connection"
 	"github.com/gin-gonic/gin"
 )
 
 type webServer struct {
-	containerManager vm.Container
+	clients connection.Clients
 }
 
-func StartWebServer(containerManager vm.Container) {
+func StartWebServer(clients connection.Clients) {
 	w := webServer{
-		containerManager: containerManager,
+		clients: clients,
 	}
 
 	r := gin.Default()
@@ -38,7 +38,7 @@ type storageResult struct {
 }
 
 func (w webServer) handleList(c *gin.Context) {
-	clients := w.containerManager.GetAllClients()
+	clients := w.clients.GetAllClients()
 	webResult := []clientResult{}
 	for _, cc := range clients {
 		client := clientResult{

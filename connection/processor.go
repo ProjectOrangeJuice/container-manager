@@ -1,4 +1,4 @@
-package vm
+package connection
 
 import (
 	"encoding/json"

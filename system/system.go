@@ -5,14 +5,14 @@ import (
 	"log"
 	"time"
 
-	"github.com/ProjectOrangeJuice/vm-manager-server/vm"
+	"github.com/ProjectOrangeJuice/vm-manager-server/connection"
 )
 
 type System struct {
-	VMs vm.Container
+	clients connection.Clients
 }
 
-func RunSystem(containerManager vm.Container) {
+func RunSystem(containerManager connection.Clients) {
 	ticker := time.NewTicker(30 * time.Second)
 	for {
 		<-ticker.C
