@@ -11,12 +11,6 @@ import (
 )
 
 func main() {
-
-	// clients := cell.NewContainerList()
-	// go system.RunSystem(clients)
-	// go web.StartWebServer(clients)
-	// Listen on port 8080
-
 	// if this is the first run, run setup
 	config, exists, err := serverConfig.ReadConfig()
 	if err != nil {
@@ -55,6 +49,5 @@ func main() {
 		}
 		log.Println("New connection")
 		go connection.HandleClient(conn)
-		// clients.AddClient(name, conn)
 	}
 }
