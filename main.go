@@ -7,6 +7,7 @@ import (
 
 	"github.com/ProjectOrangeJuice/vm-manager-server/cert"
 	"github.com/ProjectOrangeJuice/vm-manager-server/connection"
+	"github.com/ProjectOrangeJuice/vm-manager-server/serverConfig"
 )
 
 func main() {
@@ -15,6 +16,25 @@ func main() {
 	// go system.RunSystem(clients)
 	// go web.StartWebServer(clients)
 	// Listen on port 8080
+
+	// if this is the first run, run setup
+	config, exists, err := serverConfig.ReadConfig()
+	if err != nil {
+		if exists {
+			log.Printf("Error reading config file, %s. As the file exists, we won't create it", err)
+			return
+		}
+		log.Printf("Config file was not there, running setup [%s]", err)
+		err = serverConfig.FirstRun()
+		if err != nil {
+			log.Printf("First run failed, %s", err)
+			return
+		}
+		return
+	}
+
+	log.Printf("Config [%+v]", config)
+	connection.InitFingerprints(config.ClientFingerprints)
 
 	tlsConfig, err := cert.SetupTLSConfig("keys/")
 	if err != nil {

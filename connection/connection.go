@@ -6,7 +6,16 @@ import (
 	"fmt"
 	"log"
 	"net"
+
+	"github.com/ProjectOrangeJuice/vm-manager-server/serverConfig"
 )
+
+func InitFingerprints(fingerprints []serverConfig.Fingerprint) {
+	for _, fingerprint := range fingerprints {
+		pinnedCertificates[fingerprint.Fingerprint] = fingerprint.AllowConnect
+	}
+
+}
 
 func HandleClient(conn net.Conn) {
 	defer conn.Close()
@@ -49,5 +58,18 @@ func promptAllowConnection(cert *x509.Certificate) bool {
 	fmt.Print("Allow connection? [Y/n]: ")
 	var response string
 	_, _ = fmt.Scanln(&response)
+	if response == "Y" || response == "y" {
+		addFingerPrint(cert.SerialNumber.String(), cert.SerialNumber.String(), cert.Subject.CommonName, true)
+	}
 	return response == "Y" || response == "y"
+}
+
+func addFingerPrint(fingerprint, serial, name string, allow bool) {
+	pinnedCertificates[fingerprint] = allow
+	serverConfig.AddFingerprint(serverConfig.Fingerprint{
+		Name:         name,
+		SerialNumber: serial,
+		Fingerprint:  fingerprint, // This is the serial number for now
+		AllowConnect: allow,
+	})
 }
