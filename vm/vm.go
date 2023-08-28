@@ -1,13 +1,15 @@
-package cell
+package vm
 
 import (
 	"bufio"
-	"container-manager/shared"
+
 	"fmt"
 	"io"
 	"log"
 	"net"
 	"sync"
+
+	"github.com/ProjectOrangeJuice/vm-manager-server/shared"
 )
 
 type containerData struct {

@@ -2,21 +2,26 @@ package main
 
 import (
 	"bufio"
-	cell "container-manager/server/container"
-	"container-manager/server/system"
-	"container-manager/server/web"
+	"crypto/tls"
 	"fmt"
 	"log"
-	"net"
+
+	"github.com/ProjectOrangeJuice/vm-manager-server/cert"
 )
 
 func main() {
 
-	clients := cell.NewContainerList()
-	go system.RunSystem(clients)
-	go web.StartWebServer(clients)
+	// clients := cell.NewContainerList()
+	// go system.RunSystem(clients)
+	// go web.StartWebServer(clients)
 	// Listen on port 8080
-	listener, err := net.Listen("tcp", ":8080")
+
+	tlsConfig, err := cert.SetupTLSConfig("keys/")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	listener, err := tls.Listen("tcp", ":8080", tlsConfig)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -37,7 +42,7 @@ func main() {
 			conn.Close()
 			continue
 		}
-
-		clients.AddClient(name, conn)
+		log.Printf("line -> %s", name)
+		// clients.AddClient(name, conn)
 	}
 }

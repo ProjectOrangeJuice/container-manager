@@ -1,18 +1,18 @@
 package web
 
 import (
-	cell "container-manager/server/container"
 	"log"
 	"net/http"
 
+	"github.com/ProjectOrangeJuice/vm-manager-server/vm"
 	"github.com/gin-gonic/gin"
 )
 
 type webServer struct {
-	containerManager cell.Container
+	containerManager vm.Container
 }
 
-func StartWebServer(containerManager cell.Container) {
+func StartWebServer(containerManager vm.Container) {
 	w := webServer{
 		containerManager: containerManager,
 	}

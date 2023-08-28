@@ -1,17 +1,18 @@
 package system
 
 import (
-	cell "container-manager/server/container"
 	"fmt"
 	"log"
 	"time"
+
+	"github.com/ProjectOrangeJuice/vm-manager-server/vm"
 )
 
 type System struct {
-	CM cell.Container
+	VMs vm.Container
 }
 
-func RunSystem(containerManager cell.Container) {
+func RunSystem(containerManager vm.Container) {
 	ticker := time.NewTicker(30 * time.Second)
 	for {
 		<-ticker.C

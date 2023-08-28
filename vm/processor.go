@@ -1,9 +1,10 @@
-package cell
+package vm
 
 import (
-	"container-manager/shared"
 	"encoding/json"
 	"log"
+
+	"github.com/ProjectOrangeJuice/vm-manager-server/shared"
 )
 
 func (c *Client) processEvent(line string) {
