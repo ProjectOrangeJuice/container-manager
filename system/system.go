@@ -17,7 +17,7 @@ func RunSystem(containerManager connection.Clients) {
 	for {
 		<-ticker.C
 		log.Printf("Ticking over the containers")
-		clients := containerManager.GetAllClients()
+		clients := containerManager.GetActiveClients()
 
 		for _, client := range clients {
 			fmt.Fprint(client.Conn, "STORAGE_INFO\n")

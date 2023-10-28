@@ -73,8 +73,16 @@ func (ac *allClients) RemoveClient(name string) {
 	}
 }
 
-func (ac *allClients) GetAllClients() []*Client {
+func (ac *allClients) GetActiveClients() []*Client {
 	return ac.Clients
+}
+
+func (ac *allClients) GetWaitingClients() []ClientDetails {
+	return ac.WaitingClients
+}
+
+func (ac *allClients) GetAcceptedClients() []ClientDetails {
+	return ac.AcceptedClients
 }
 
 func (ac *allClients) processCell(client *Client) {

@@ -21,7 +21,9 @@ func Setup(config serverConfig.Config) Clients {
 
 type Clients interface {
 	HandleClient(conn net.Conn)
-	GetAllClients() []*Client
+	GetActiveClients() []*Client
+	GetWaitingClients() []ClientDetails
+	GetAcceptedClients() []ClientDetails
 }
 
 func (ac *allClients) InitFingerprints(fingerprints []serverConfig.Fingerprint) {
@@ -103,6 +105,7 @@ func (ac *allClients) promptAllowConnection(cert *x509.Certificate) bool {
 			ac.addFingerPrint(cert.SerialNumber.String(), cert.SerialNumber.String(), cert.Subject.CommonName, false)
 			return false
 		}
+		ac.clientLock.Unlock()
 	}
 	return false
 }
