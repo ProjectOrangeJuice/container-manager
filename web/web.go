@@ -21,6 +21,9 @@ func StartWebServer(clients connection.Clients) {
 	r.OPTIONS("/api/list", w.handleListAPI)
 	r.GET("/api/list", w.handleListAPI)
 
+	r.OPTIONS("/api/waiting/:id", w.handleWaitingAPI)
+	r.POST("/api/waiting/:id", w.handleWaitingAPI)
+
 	r.Run(":8081")
 }
 
@@ -41,6 +44,24 @@ type listAPIResult struct {
 	ActiveClients       []clientResult
 	WaitingClients      []connection.ClientDetails
 	DisconnectedClients []connection.ClientDetails
+}
+
+type waitingResponse struct {
+	Allow bool
+}
+
+func (w webServer) handleWaitingAPI(c *gin.Context) {
+	// Set CORS headers
+	c.Header("Access-Control-Allow-Origin", "*")
+	c.Header("Access-Control-Allow-Headers", "Content-Type")
+
+	id := c.Param("id")
+	var a waitingResponse
+	c.BindJSON(&a)
+
+	log.Printf("Waiting client %s will be allowed? %v", id, a.Allow)
+
+	w.clients.DealWithWaiting(id, a.Allow)
 }
 
 func (w webServer) handleListAPI(c *gin.Context) {

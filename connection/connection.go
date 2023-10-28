@@ -24,6 +24,7 @@ type Clients interface {
 	GetActiveClients() []*Client
 	GetWaitingClients() []ClientDetails
 	GetAcceptedClients() []ClientDetails
+	DealWithWaiting(serial string, allow bool)
 }
 
 func (ac *allClients) InitFingerprints(fingerprints []serverConfig.Fingerprint) {
@@ -126,6 +127,28 @@ func (ac *allClients) addFingerPrint(fingerprint, serial, name string, allow boo
 		Serial:      serial,
 		Fingerprint: fingerprint,
 	})
+}
+
+func (ac *allClients) DealWithWaiting(serial string, allow bool) {
+	ac.clientLock.Lock()
+	defer ac.clientLock.Unlock()
+	var c ClientDetails
+	// remove from waiting list
+	for i, client := range ac.WaitingClients {
+		if client.Serial == serial {
+			c = client
+			ac.WaitingClients = append(ac.WaitingClients[:i], ac.WaitingClients[i+1:]...)
+			break
+		}
+	}
+
+	if allow {
+		ac.AcceptedClients = append(ac.AcceptedClients, ClientDetails{
+			Name:        c.Name,
+			Serial:      serial,
+			Fingerprint: c.Fingerprint,
+		})
+	}
 }
 
 func isCertificatePinned(cert *x509.Certificate) bool {
