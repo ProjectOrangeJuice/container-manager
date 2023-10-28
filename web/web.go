@@ -18,10 +18,19 @@ func StartWebServer(clients connection.Clients) {
 	}
 
 	r := gin.Default()
-	r.OPTIONS("/api/list", w.handleListAPI)
+	// deal with cors and preflight requests
+	r.Use(func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "*")
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(http.StatusOK)
+		}
+		c.Next()
+	})
+
 	r.GET("/api/list", w.handleListAPI)
 
-	r.OPTIONS("/api/waiting/:id", w.handleWaitingAPI)
 	r.POST("/api/waiting/:id", w.handleWaitingAPI)
 
 	r.Run(":8081")
@@ -51,9 +60,6 @@ type waitingResponse struct {
 }
 
 func (w webServer) handleWaitingAPI(c *gin.Context) {
-	// Set CORS headers
-	c.Header("Access-Control-Allow-Origin", "*")
-	c.Header("Access-Control-Allow-Headers", "Content-Type")
 
 	id := c.Param("id")
 	var a waitingResponse
@@ -65,9 +71,6 @@ func (w webServer) handleWaitingAPI(c *gin.Context) {
 }
 
 func (w webServer) handleListAPI(c *gin.Context) {
-	// Set CORS headers
-	c.Header("Access-Control-Allow-Origin", "*")
-	c.Header("Access-Control-Allow-Headers", "Content-Type")
 
 	activeClients := w.clients.GetActiveClients()
 	waitingClients := w.clients.GetWaitingClients()
