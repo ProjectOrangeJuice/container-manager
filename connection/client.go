@@ -12,18 +12,25 @@ import (
 )
 
 type allClients struct {
-	Clients    []*Client
-	clientLock sync.Mutex
+	Clients         []*Client
+	AcceptedClients []ClientDetails // Comes from config
+	WaitingClients  []ClientDetails // Clients trying to connect
+	clientLock      sync.Mutex
 }
 
 type Client struct {
-	Name   string
-	Serial string
-	Conn   net.Conn
+	ClientDetails
+	Conn net.Conn
 
 	// The client information
 	Storage []shared.StorageResult
 	System  shared.SystemResult
+}
+
+type ClientDetails struct {
+	Name        string
+	Serial      string
+	Fingerprint string
 }
 
 // AddClient adds a new client to the list of clients and reads the data from the client connection
@@ -39,9 +46,12 @@ func (ac *allClients) AddClient(name, serial string, conn net.Conn) {
 		}
 	}
 	newClient := Client{
-		Name:   name,
-		Conn:   conn,
-		Serial: serial,
+		ClientDetails: ClientDetails{
+			Name:        name,
+			Serial:      serial,
+			Fingerprint: "",
+		},
+		Conn: conn,
 	}
 	log.Printf("Adding client %s", name)
 	ac.Clients = append(ac.Clients, &newClient)

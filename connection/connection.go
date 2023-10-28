@@ -3,15 +3,20 @@ package connection
 import (
 	"crypto/tls"
 	"crypto/x509"
-	"fmt"
 	"log"
 	"net"
+	"time"
 
 	"github.com/ProjectOrangeJuice/vm-manager-server/serverConfig"
 )
 
-func Setup() Clients {
-	return &allClients{}
+var pinnedCertificates = map[string]bool{}
+
+func Setup(config serverConfig.Config) Clients {
+	// Load the accepted clients
+	ac := &allClients{}
+	ac.InitFingerprints(config.ClientFingerprints)
+	return ac
 }
 
 type Clients interface {
@@ -19,9 +24,14 @@ type Clients interface {
 	GetAllClients() []*Client
 }
 
-func InitFingerprints(fingerprints []serverConfig.Fingerprint) {
+func (ac *allClients) InitFingerprints(fingerprints []serverConfig.Fingerprint) {
 	for _, fingerprint := range fingerprints {
 		pinnedCertificates[fingerprint.Fingerprint] = fingerprint.AllowConnect
+		ac.AcceptedClients = append(ac.AcceptedClients, ClientDetails{
+			Name:        fingerprint.Name,
+			Serial:      fingerprint.SerialNumber,
+			Fingerprint: fingerprint.Fingerprint,
+		})
 	}
 
 }
@@ -46,7 +56,7 @@ func (ac *allClients) HandleClient(conn net.Conn) {
 	clientCert := certs[0]
 
 	if !isCertificatePinned(clientCert) {
-		if !promptAllowConnection(clientCert) {
+		if !ac.promptAllowConnection(clientCert) {
 			log.Println("Connection denied.")
 			return
 		}
@@ -56,24 +66,48 @@ func (ac *allClients) HandleClient(conn net.Conn) {
 	ac.AddClient(clientCert.Subject.CommonName, clientCert.SerialNumber.String(), conn)
 }
 
-var pinnedCertificates = map[string]bool{}
+func (ac *allClients) promptAllowConnection(cert *x509.Certificate) bool {
 
-func isCertificatePinned(cert *x509.Certificate) bool {
-	return pinnedCertificates[cert.SerialNumber.String()]
-}
+	ac.clientLock.Lock()
+	ac.WaitingClients = append(ac.WaitingClients, ClientDetails{
+		Name:        cert.Subject.CommonName,
+		Serial:      cert.SerialNumber.String(),
+		Fingerprint: cert.SerialNumber.String(),
+	})
 
-func promptAllowConnection(cert *x509.Certificate) bool {
-	fmt.Printf("Unknown client certificate: %s\n", cert.Subject.CommonName)
-	fmt.Print("Allow connection? [Y/n]: ")
-	var response string
-	_, _ = fmt.Scanln(&response)
-	if response == "Y" || response == "y" {
-		addFingerPrint(cert.SerialNumber.String(), cert.SerialNumber.String(), cert.Subject.CommonName, true)
+	ac.clientLock.Unlock()
+
+	// Every 10 seconds check list, after 3 hours, stop checking
+	for i := 0; i < 1080; i++ {
+		time.Sleep(10 * time.Second)
+
+		// Check if the client is in waiting list
+		ac.clientLock.Lock()
+		found := false
+		for _, client := range ac.WaitingClients {
+			if client.Serial == cert.SerialNumber.String() {
+				found = true
+				break
+			}
+		}
+		if !found {
+			// check if the client is in accepted list
+			for _, client := range ac.AcceptedClients {
+				if client.Serial == cert.SerialNumber.String() {
+					ac.clientLock.Unlock()
+					ac.addFingerPrint(cert.SerialNumber.String(), cert.SerialNumber.String(), cert.Subject.CommonName, true)
+					return true
+				}
+			}
+			ac.clientLock.Unlock()
+			ac.addFingerPrint(cert.SerialNumber.String(), cert.SerialNumber.String(), cert.Subject.CommonName, false)
+			return false
+		}
 	}
-	return response == "Y" || response == "y" // This will be on the UI, but fornow we accept an input through the terminal
+	return false
 }
 
-func addFingerPrint(fingerprint, serial, name string, allow bool) {
+func (ac *allClients) addFingerPrint(fingerprint, serial, name string, allow bool) {
 	pinnedCertificates[fingerprint] = allow
 	serverConfig.AddFingerprint(serverConfig.Fingerprint{
 		Name:         name,
@@ -81,4 +115,16 @@ func addFingerPrint(fingerprint, serial, name string, allow bool) {
 		Fingerprint:  fingerprint, // This is the serial number for now
 		AllowConnect: allow,
 	})
+
+	ac.clientLock.Lock()
+	defer ac.clientLock.Unlock()
+	ac.AcceptedClients = append(ac.AcceptedClients, ClientDetails{
+		Name:        name,
+		Serial:      serial,
+		Fingerprint: fingerprint,
+	})
+}
+
+func isCertificatePinned(cert *x509.Certificate) bool {
+	return pinnedCertificates[cert.SerialNumber.String()]
 }

@@ -30,14 +30,13 @@ func main() {
 	}
 
 	log.Printf("Config [%+v]", config)
-	connection.InitFingerprints(config.ClientFingerprints)
 
 	tlsConfig, err := cert.SetupTLSConfig("keys/")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	clientHandler := connection.Setup()
+	clientHandler := connection.Setup(config)
 	go web.StartWebServer(clientHandler)
 	go system.RunSystem(clientHandler)
 
