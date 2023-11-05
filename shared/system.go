@@ -6,4 +6,11 @@ type SystemResult struct {
 	CPUUseage   float64
 	Hostname    string
 	Version     string //version of vm-manager-client
+	Networks    []Network
+}
+
+type Network struct {
+	IP   string
+	MAC  string
+	Name string
 }

@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/ProjectOrangeJuice/vm-manager-server/connection"
+	"github.com/ProjectOrangeJuice/vm-manager-server/shared"
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
 )
@@ -47,6 +48,7 @@ type clientResult struct {
 	Memory   float64
 	Hostname string
 	Version  string
+	Networks []shared.Network
 	Storage  []storageResult
 }
 
