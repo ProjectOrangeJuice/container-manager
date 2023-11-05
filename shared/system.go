@@ -5,4 +5,5 @@ type SystemResult struct {
 	FreeMemory  uint64
 	CPUUseage   float64
 	Hostname    string
+	Version     string //version of vm-manager-client
 }

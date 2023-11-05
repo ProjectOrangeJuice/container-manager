@@ -40,10 +40,12 @@ func StartWebServer(clients connection.Clients) {
 }
 
 type clientResult struct {
-	Name    string
-	CPU     float64
-	Memory  float64
-	Storage []storageResult
+	Name     string
+	CPU      float64
+	Memory   float64
+	Hostname string
+	Version  string
+	Storage  []storageResult
 }
 
 type storageResult struct {
@@ -97,10 +99,12 @@ func (w webServer) handleListAPI(c *gin.Context) {
 
 func createClientDetail(c connection.Client) clientResult {
 	client := clientResult{
-		Name:    c.Name,
-		CPU:     c.System.CPUUseage,
-		Memory:  (float64(c.System.TotalMemory-c.System.FreeMemory) / float64(c.System.TotalMemory)) * 100,
-		Storage: []storageResult{},
+		Name:     c.Name,
+		CPU:      c.System.CPUUseage,
+		Hostname: c.System.Hostname,
+		Version:  c.System.Version,
+		Memory:   (float64(c.System.TotalMemory-c.System.FreeMemory) / float64(c.System.TotalMemory)) * 100,
+		Storage:  []storageResult{},
 	}
 	for _, storage := range c.Storage {
 		client.Storage = append(client.Storage, storageResult{
