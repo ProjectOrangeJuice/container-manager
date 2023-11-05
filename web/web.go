@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/ProjectOrangeJuice/vm-manager-server/connection"
+	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
 )
 
@@ -29,8 +30,10 @@ func StartWebServer(clients connection.Clients) {
 		c.Next()
 	})
 
-	r.GET("/api/list", w.handleListAPI)
+	// Serve static files
+	r.Use(static.Serve("/", static.LocalFile("./web/src/", false)))
 
+	r.GET("/api/list", w.handleListAPI)
 	r.POST("/api/waiting/:id", w.handleWaitingAPI)
 
 	r.Run(":8081")
