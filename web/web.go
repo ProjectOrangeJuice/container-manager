@@ -108,6 +108,7 @@ func createClientDetail(c connection.Client) clientResult {
 		Hostname: c.System.Hostname,
 		Serial:   c.Serial,
 		Version:  c.System.Version,
+		Networks: c.System.Networks,
 		Memory:   (float64(c.System.TotalMemory-c.System.FreeMemory) / float64(c.System.TotalMemory)) * 100,
 		Storage:  []storageResult{},
 	}
