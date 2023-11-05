@@ -25,6 +25,7 @@ type Clients interface {
 	GetWaitingClients() []ClientDetails
 	GetAcceptedClients() []ClientDetails
 	DealWithWaiting(serial string, allow bool)
+	SendUpdateRequest(id string) error
 }
 
 func (ac *allClients) InitFingerprints(fingerprints []serverConfig.Fingerprint) {

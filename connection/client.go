@@ -85,6 +85,21 @@ func (ac *allClients) GetAcceptedClients() []ClientDetails {
 	return ac.AcceptedClients
 }
 
+func (ac *allClients) SendUpdateRequest(id string) error {
+	var curClient *Client
+	for _, client := range ac.Clients {
+		if client.Serial == id {
+			curClient = client
+		}
+	}
+	if curClient == nil {
+		return fmt.Errorf("Client not found")
+	}
+
+	fmt.Fprint(curClient.Conn, "UPDATE_NOW\n")
+	return nil
+}
+
 func (ac *allClients) processCell(client *Client) {
 	// Create a buffered reader
 	reader := bufio.NewReader(client.Conn)

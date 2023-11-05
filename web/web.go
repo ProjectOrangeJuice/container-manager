@@ -35,12 +35,14 @@ func StartWebServer(clients connection.Clients) {
 
 	r.GET("/api/list", w.handleListAPI)
 	r.POST("/api/waiting/:id", w.handleWaitingAPI)
+	r.POST("/api/update/:id", w.SendUpdateRequest)
 
 	r.Run(":8081")
 }
 
 type clientResult struct {
 	Name     string
+	Serial   string
 	CPU      float64
 	Memory   float64
 	Hostname string
@@ -102,6 +104,7 @@ func createClientDetail(c connection.Client) clientResult {
 		Name:     c.Name,
 		CPU:      c.System.CPUUseage,
 		Hostname: c.System.Hostname,
+		Serial:   c.Serial,
 		Version:  c.System.Version,
 		Memory:   (float64(c.System.TotalMemory-c.System.FreeMemory) / float64(c.System.TotalMemory)) * 100,
 		Storage:  []storageResult{},
