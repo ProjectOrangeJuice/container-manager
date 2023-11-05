@@ -31,7 +31,7 @@ func StartWebServer(clients connection.Clients) {
 	})
 
 	// Serve static files
-	r.Use(static.Serve("/", static.LocalFile("./web/src/", false)))
+	r.Use(static.Serve("/", static.LocalFile("./static", false)))
 
 	r.GET("/api/list", w.handleListAPI)
 	r.POST("/api/waiting/:id", w.handleWaitingAPI)
