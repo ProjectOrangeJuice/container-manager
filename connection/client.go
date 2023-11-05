@@ -90,6 +90,7 @@ func (ac *allClients) SendUpdateRequest(id string) error {
 	for _, client := range ac.Clients {
 		if client.Serial == id {
 			curClient = client
+			break
 		}
 	}
 	if curClient == nil {
